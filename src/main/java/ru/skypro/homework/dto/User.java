@@ -16,4 +16,5 @@ public class User {
     private String lastName;
     private String phone;
     private Role role;
+    private String avatar; //ссылка на картинку объявления
 }
