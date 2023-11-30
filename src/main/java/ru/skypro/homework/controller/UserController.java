@@ -1,6 +1,8 @@
 package ru.skypro.homework.controller;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,8 +18,9 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @CrossOrigin(value = "http://localhost:3000")
 @RestController
+@Tag(name = "Пользователи")
 @RequiredArgsConstructor
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
     @Operation(summary = "Обновление пароля",
             responses = {
@@ -26,7 +29,7 @@ public class UserController {
                             description = "OK",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = Password.class)
+                                    schema = @Schema(implementation = NewPassword.class)
                             )),
                     @ApiResponse(responseCode = "401", description = "Unauthorized",
                             content = @Content(schema = @Schema(hidden = true))),
@@ -36,8 +39,8 @@ public class UserController {
             }
     )
     @PostMapping("/set_password")//Обновление пароля
-    public ResponseEntity<Password> setPasword() {
-        return ResponseEntity.ok(new Password());
+    public ResponseEntity<Void> setPasword() {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Operation(summary = "Получение информации об авторизованном пользователе",
@@ -67,7 +70,7 @@ public class UserController {
                             description = "OK",
                             content = @Content(
                                     mediaType = "application/json",
-                                    schema = @Schema(implementation = UserUpdateInfo.class)
+                                    schema = @Schema(implementation = UpdateUser.class)
                             )
                     ),
                     @ApiResponse(responseCode = "401", description = "Unauthorized",
@@ -76,8 +79,8 @@ public class UserController {
             }
     )
     @PatchMapping("/me")//Обновление информации об авторизованном пользователе
-    public ResponseEntity<UserUpdateInfo> updateUser() {
-        return ResponseEntity.ok(new UserUpdateInfo());
+    public ResponseEntity<UpdateUser> updateUser() {
+        return ResponseEntity.ok(new UpdateUser());
     }
 
     @Operation(summary = "Обновление аватара авторизованного пользователя",
@@ -94,9 +97,8 @@ public class UserController {
                             content = @Content(schema = @Schema(hidden = true))),
             }
     )
-    @PatchMapping(path = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<byte[]> updateAvatar( @RequestPart MultipartFile image) {
-        byte[] avatar = {};
-        return ResponseEntity.ok(avatar);
+    @PatchMapping(path = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> updateUserImage(@RequestPart MultipartFile image) {
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

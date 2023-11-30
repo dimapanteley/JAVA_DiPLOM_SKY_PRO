@@ -8,13 +8,11 @@ import javax.persistence.Id;
 
 @Data
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int id;
     private String email;
     private String firstName;
     private String lastName;
     private String phone;
     private Role role;
-    private String avatar; //ссылка на картинку объявления
+    private String image; //ссылка на картинку объявления
 }
