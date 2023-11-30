@@ -39,7 +39,7 @@ public class UserController {
             }
     )
     @PostMapping("/set_password")//Обновление пароля
-    public ResponseEntity<Void> setPasword() {
+    public ResponseEntity<Void> setPassword() {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
