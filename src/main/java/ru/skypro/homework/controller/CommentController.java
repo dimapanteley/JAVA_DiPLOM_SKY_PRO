@@ -33,6 +33,9 @@ public class CommentController {
                             )
                     ),
                     @ApiResponse(
+                            responseCode = "401",
+                            description = "Unauthorized"),
+                    @ApiResponse(
                             responseCode = "404",
                             description = "Not Found"
                     )
@@ -59,17 +62,13 @@ public class CommentController {
                             description = "Unauthorized"
                     ),
                     @ApiResponse(
-                            responseCode = "403",
-                            description = "Forbidden"
-                    ),
-                    @ApiResponse(
                             responseCode = "404",
                             description = "Not Found"
                     )
             }
     )
     @PostMapping("/{id}/comments")
-    public ResponseEntity<Comment> addc(@PathVariable Integer id, @RequestBody Comment comment) {
+    public ResponseEntity<Comment> addComment(@PathVariable Integer id, @RequestBody Comment comment) {
         return ResponseEntity.ok(new Comment());
     }
 
@@ -107,7 +106,7 @@ public class CommentController {
                             description = "OK",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Comment.class)
+                                    schema = @Schema(implementation = CreateOrUpdateComment.class)
                             )
                     ),
                     @ApiResponse(
@@ -125,11 +124,11 @@ public class CommentController {
             }
     )
     @PatchMapping("/{adId}/comments/{commentId}")
-    public ResponseEntity<Comment> updateComment(
+    public ResponseEntity<CreateOrUpdateComment> updateComment(
             @PathVariable Integer adId,
             @PathVariable Integer commentId,
-            @RequestBody Comment comment) {
-        return ResponseEntity.ok(new Comment());
+            @RequestBody CreateOrUpdateComment UpdateComment) {
+        return ResponseEntity.ok(new CreateOrUpdateComment());
     }
 }
 
