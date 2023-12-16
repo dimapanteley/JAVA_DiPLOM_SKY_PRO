@@ -39,8 +39,9 @@ public class UserController {
             }
     )
     @PostMapping("/set_password")//Обновление пароля
-    public ResponseEntity<Void> setPassword() {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    public ResponseEntity<NewPassword> setPassword() {
+
+        return ResponseEntity.ok(new NewPassword());
     }
 
     @Operation(summary = "Получение информации об авторизованном пользователе",
@@ -79,7 +80,7 @@ public class UserController {
             }
     )
     @PatchMapping("/me")//Обновление информации об авторизованном пользователе
-    public ResponseEntity<UpdateUser> updateUser() {
+    public ResponseEntity<UpdateUser> updateUser(UpdateUser updateUser) {
         return ResponseEntity.ok(new UpdateUser());
     }
 
@@ -99,6 +100,6 @@ public class UserController {
     )
     @PatchMapping(path = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updateUserImage(@RequestPart MultipartFile image) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok().build();
     }
 }
