@@ -1,8 +1,6 @@
 package ru.skypro.homework.controller;
 
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,24 +22,14 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Operation(summary = "Обновление пароля",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK",
-                            content = @Content(
-                                    mediaType = "application/json",
-                                    schema = @Schema(implementation = NewPassword.class)
-                            )),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized",
-                            content = @Content(schema = @Schema(hidden = true))),
-                    @ApiResponse(responseCode = "403", description = "Forbidden",
-                            content = @Content(schema = @Schema(hidden = true))),
-
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized"),
+                    @ApiResponse(responseCode = "403", description = "Forbidden")
             }
     )
-    @PostMapping("/set_password")//Обновление пароля
-    public ResponseEntity<NewPassword> setPassword() {
-
-        return ResponseEntity.ok(new NewPassword());
+    @PostMapping("/set_password")
+    public ResponseEntity<Void> setPassword(@RequestBody NewPassword newPassword) {
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Получение информации об авторизованном пользователе",
@@ -59,7 +47,7 @@ public class UserController {
 
             }
     )
-    @GetMapping("/me")//Получение информации об авторизованном пользователе
+    @GetMapping("/me")
     public ResponseEntity<User> getUser() {
         return ResponseEntity.ok(new User());
     }
@@ -79,23 +67,15 @@ public class UserController {
 
             }
     )
-    @PatchMapping("/me")//Обновление информации об авторизованном пользователе
-    public ResponseEntity<UpdateUser> updateUser(UpdateUser updateUser) {
+    @PatchMapping("/me")
+    public ResponseEntity<UpdateUser> updateUser(@RequestBody UpdateUser updateUser) {
         return ResponseEntity.ok(new UpdateUser());
     }
 
     @Operation(summary = "Обновление аватара авторизованного пользователя",
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "OK",
-                            content = @Content(
-                                    mediaType = "application/octet-stream",
-                                    array = @ArraySchema(schema = @Schema(implementation = String.class))
-                            )
-                    ),
-                    @ApiResponse(responseCode = "401", description = "Unauthorized",
-                            content = @Content(schema = @Schema(hidden = true))),
+                    @ApiResponse(responseCode = "200", description = "OK"),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized")
             }
     )
     @PatchMapping(path = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

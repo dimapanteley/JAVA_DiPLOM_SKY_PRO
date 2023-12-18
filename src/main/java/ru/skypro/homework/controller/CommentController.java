@@ -34,10 +34,13 @@ public class CommentController {
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Unauthorized"),
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema(hidden = true))
+                    ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not Found"
+                            description = "Not Found",
+                            content = @Content(schema = @Schema(hidden = true))
                     )
             }
     )
@@ -59,16 +62,18 @@ public class CommentController {
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Unauthorized"
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema(hidden = true))
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not Found"
+                            description = "Not Found",
+                            content = @Content(schema = @Schema(hidden = true))
                     )
             }
     )
     @PostMapping("/{id}/comments")
-    public ResponseEntity<Comment> addComment(@PathVariable Integer id, @RequestBody Comment comment) {
+    public ResponseEntity<Comment> addComment(@PathVariable Integer id, @RequestBody CreateOrUpdateComment comment) {
         return ResponseEntity.ok(new Comment());
     }
 
@@ -106,29 +111,31 @@ public class CommentController {
                             description = "OK",
                             content = @Content(
                                     mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = CreateOrUpdateComment.class)
+                                    schema = @Schema(implementation = Comment.class)
                             )
                     ),
                     @ApiResponse(
                             responseCode = "401",
-                            description = "Unauthorized"
+                            description = "Unauthorized",
+                            content = @Content(schema = @Schema(hidden = true))
                     ),
                     @ApiResponse(
                             responseCode = "403",
-                            description = "Forbidden"
+                            description = "Forbidden",
+                            content = @Content(schema = @Schema(hidden = true))
                     ),
                     @ApiResponse(
                             responseCode = "404",
-                            description = "Not Found"
+                            description = "Not Found",
+                            content = @Content(schema = @Schema(hidden = true))
                     )
             }
     )
     @PatchMapping("/{adId}/comments/{commentId}")
-    public ResponseEntity<CreateOrUpdateComment> updateComment(
+    public ResponseEntity<Comment> updateComment(
             @PathVariable Integer adId,
             @PathVariable Integer commentId,
-            @RequestBody CreateOrUpdateComment UpdateComment) {
-        return ResponseEntity.ok(new CreateOrUpdateComment());
+            @RequestBody CreateOrUpdateComment updateComment) {
+        return ResponseEntity.ok(new Comment());
     }
 }
-
