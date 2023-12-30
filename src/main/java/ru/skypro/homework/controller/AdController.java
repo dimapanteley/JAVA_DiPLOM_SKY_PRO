@@ -6,17 +6,30 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.service.impl.AdServiceImpl;
 
+import java.io.IOException;
+
+@Slf4j
 @Tag(name = "Объявления")
 @RestController
+@CrossOrigin("http://localhost:3000")
 @RequestMapping("ads")
 public class AdController {
+
+    private final AdServiceImpl adService;
+
+    public AdController(AdServiceImpl adService) {
+        this.adService = adService;
+    }
 
     @Operation(summary = "Получение всех объявлений",
             responses = {
@@ -31,8 +44,9 @@ public class AdController {
             }
     )
     @GetMapping
-    public ResponseEntity<Ads> getAllAds() {
-        return ResponseEntity.ok(new Ads());
+    public Ads getAllAds() {
+        log.info("Run method getAllAds");
+        return adService.getAllAds();
     }
 
     @Operation(summary = "Добавление объявления",
@@ -50,8 +64,12 @@ public class AdController {
             }
     )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Ad> addAd(@ModelAttribute AddingAd ad) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(new Ad());
+    @ResponseStatus(HttpStatus.CREATED)
+    public Ad addAd(@RequestPart CreateOrUpdateAd properties,
+                    @RequestPart MultipartFile image,
+                    Authentication authentication) throws IOException {
+        log.info("Run method addAd");
+        return adService.addAd(properties, image, authentication);
     }
 
     @Operation(summary = "Получение информации об объявлении",
@@ -71,8 +89,9 @@ public class AdController {
             }
     )
     @GetMapping("{id}")
-    public ResponseEntity<ExtendedAd> getAd(@PathVariable int id) {
-        return ResponseEntity.ok(new ExtendedAd());
+    public ExtendedAd getAd(@PathVariable int id) {
+        log.info("Run method getAd");
+        return adService.getAd(id);
     }
 
     @Operation(summary = "Удаление объявления",
@@ -84,8 +103,10 @@ public class AdController {
             }
     )
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> removeAd(@PathVariable int id) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize(value = "hasRole('ADMIN') or @adServiceImpl.isAuthorAd(authentication.getName(), #id)")
+    public void removeAd(@PathVariable int id) throws IOException {
+        adService.removeAd(id);
     }
 
     @Operation(summary = "Обновление информации об объявлении",
@@ -107,8 +128,9 @@ public class AdController {
             }
     )
     @PatchMapping("{id}")
-    public ResponseEntity<Ad> updateAd(@PathVariable int id, @RequestBody CreateOrUpdateAd ad) {
-        return ResponseEntity.ok(new Ad());
+    @PreAuthorize(value = "hasRole('ADMIN') or @adServiceImpl.isAuthorAd(authentication.getName(), #id)")
+    public Ad updateAd(@PathVariable int id, @RequestBody CreateOrUpdateAd ad) {
+        return adService.updateAd(id, ad);
     }
 
     @Operation(summary = "Получение объявлений авторизованного пользователя",
@@ -126,8 +148,9 @@ public class AdController {
             }
     )
     @GetMapping("me")
-    public ResponseEntity<Ads> getAdsMe() {
-        return ResponseEntity.ok(new Ads());
+    public Ads getAdsMe(Authentication authentication) {
+        log.info("Run method getAdsMe");
+        return adService.getAdsByUsername(authentication.getName());
     }
 
     @Operation(summary = "Обновление картинки объявления",
@@ -149,8 +172,8 @@ public class AdController {
             }
     )
     @PatchMapping(path = "{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<byte[]> updateImage(@PathVariable int id, @RequestPart MultipartFile image) {
-        byte[] array = {};
-        return ResponseEntity.ok(array);
+    @PreAuthorize(value = "hasRole('ADMIN') or @adServiceImpl.isAuthorAd(authentication.getName(), #id)")
+    public byte[] updateImage(@PathVariable int id, @RequestPart MultipartFile image) throws IOException {
+        return adService.updateAdImage(id, image);
     }
 }
