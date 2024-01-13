@@ -8,7 +8,7 @@ import java.util.Collection;
 
 @Data
 @Entity
-@Table(name = "ad")
+@Table(name = "ads")
 public class AdEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,9 +22,8 @@ public class AdEntity {
     @JoinColumn(name = "author_id")
     private UserEntity author;
     @OneToOne
-    @JoinColumn(name = "image_id")
     private ImageEntity image;
-    @OneToMany(mappedBy = "ad")
+    @OneToMany(mappedBy = "ad", cascade = CascadeType.ALL)
     @JsonIgnore
     private Collection<CommentEntity> comments;
 }

@@ -7,7 +7,9 @@ public class CommentMapper {
     public static Comment toComment(CommentEntity entity) {
         Comment dto = new Comment();
         dto.setAuthor(entity.getAuthor().getId());
-        dto.setAuthorImage(entity.getAuthor().getImage().getFilePath());
+        if (entity.getAuthor().getImage() != null) {
+            dto.setAuthorImage("/photo/image/" + entity.getAuthor().getImage().getId());
+        }
         dto.setAuthorFirstName(entity.getAuthor().getFirstName());
         dto.setPk(entity.getId());
         dto.setCreatedAt(entity.getCreatedAt());

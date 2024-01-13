@@ -5,22 +5,29 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import ru.skypro.homework.dto.*;
+import ru.skypro.homework.service.impl.CommentServiceImpl;
 
 @Tag(name = "Комментарии")
 @Slf4j
-@CrossOrigin(value = "http://localhost:3000")
+@CrossOrigin("http://localhost:3000")
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("ads")
 public class CommentController {
+
+    CommentServiceImpl commentService;
+
+    public CommentController(CommentServiceImpl commentService) {
+        this.commentService = commentService;
+    }
+
     @Operation(
             summary = "Получить комментарии объявления",
             responses = {
@@ -45,8 +52,9 @@ public class CommentController {
             }
     )
     @GetMapping("{id}/comments")
-    public ResponseEntity<Comments> getComments(@PathVariable Integer id) {
-        return ResponseEntity.ok(new Comments());
+    public Comments getComments(@PathVariable int id) {
+        log.info("Run method getComments in controller");
+        return commentService.getComments(id);
     }
 
     @Operation(
@@ -73,8 +81,10 @@ public class CommentController {
             }
     )
     @PostMapping("/{id}/comments")
-    public ResponseEntity<Comment> addComment(@PathVariable Integer id, @RequestBody CreateOrUpdateComment comment) {
-        return ResponseEntity.ok(new Comment());
+    public Comment addComment(@PathVariable int id, @RequestBody CreateOrUpdateComment comment,
+                              Authentication authentication) {
+        log.info("Run method addComment in controller");
+        return commentService.addComment(id, comment, authentication);
     }
 
     @Operation(
@@ -99,8 +109,11 @@ public class CommentController {
             }
     )
     @DeleteMapping("/{adId}/comments/{commentId}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Integer adId, @PathVariable Integer commentId) {
-        return ResponseEntity.ok().build();
+    @PreAuthorize(value = "hasRole('ADMIN') " +
+            "or @commentServiceImpl.isAuthorComment(authentication.getName(), #commentId)")
+    public void deleteComment(@PathVariable int adId, @PathVariable int commentId) {
+        log.info("Run method deleteComment in controller");
+        commentService.deleteComment(commentId);
     }
 
     @Operation(
@@ -132,10 +145,13 @@ public class CommentController {
             }
     )
     @PatchMapping("/{adId}/comments/{commentId}")
-    public ResponseEntity<Comment> updateComment(
-            @PathVariable Integer adId,
-            @PathVariable Integer commentId,
+    @PreAuthorize(value = "hasRole('ADMIN') " +
+            "or @commentServiceImpl.isAuthorComment(authentication.getName(), #commentId)")
+    public Comment updateComment(
+            @PathVariable int adId,
+            @PathVariable int commentId,
             @RequestBody CreateOrUpdateComment updateComment) {
-        return ResponseEntity.ok(new Comment());
+        log.info("Run method updateComment in controller");
+        return commentService.updateComment(commentId, updateComment);
     }
 }

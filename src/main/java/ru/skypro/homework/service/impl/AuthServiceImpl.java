@@ -1,47 +1,52 @@
 package ru.skypro.homework.service.impl;
 
-import org.springframework.security.core.userdetails.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.Register;
+import ru.skypro.homework.exception.UserAlreadyRegisteredException;
+import ru.skypro.homework.exception.WrongPasswordException;
+import ru.skypro.homework.mapper.UserMapper;
+import ru.skypro.homework.model.UserEntity;
+import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.AuthService;
 
+@Slf4j
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final UserDetailsManager manager;
     private final PasswordEncoder encoder;
+    private final MyUserDetailsService userDetailService;
+    private final UserRepository userRepository;
 
-    public AuthServiceImpl(UserDetailsManager manager,
-                           PasswordEncoder passwordEncoder) {
-        this.manager = manager;
-        this.encoder = passwordEncoder;
+    public AuthServiceImpl(PasswordEncoder encoder,
+                           MyUserDetailsService userDetailService,
+                           UserRepository userRepository) {
+        this.encoder = encoder;
+        this.userDetailService = userDetailService;
+        this.userRepository = userRepository;
     }
 
     @Override
     public boolean login(String userName, String password) {
-        if (!manager.userExists(userName)) {
-            return false;
+        log.info("Run method login in service");
+        UserDetails userDetails = userDetailService.loadUserByUsername(userName);
+        if (encoder.matches(password, userDetails.getPassword())) {
+            return true;
         }
-        UserDetails userDetails = manager.loadUserByUsername(userName);
-        return encoder.matches(password, userDetails.getPassword());
+        throw new WrongPasswordException("Wrong password");
     }
 
     @Override
     public boolean register(Register register) {
-        if (manager.userExists(register.getUsername())) {
-            return false;
+        log.info("Run method register in service");
+        UserEntity user = UserMapper.toUserEntity(register);
+        if (userRepository.existsByUsername(user.getUsername())) {
+            throw new UserAlreadyRegisteredException("User by username " + user.getUsername() + " already registered");
         }
-        manager.createUser(
-                User.builder()
-                        .passwordEncoder(this.encoder::encode)
-                        .password(register.getPassword())
-                        .username(register.getUsername())
-                        .roles(register.getRole().name())
-                        .build());
+        user.setPassword(encoder.encode(user.getPassword()));
+        userRepository.save(user);
         return true;
     }
-
 }
